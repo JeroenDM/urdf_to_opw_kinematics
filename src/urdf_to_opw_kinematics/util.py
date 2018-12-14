@@ -10,8 +10,9 @@ def angle(v1, v2):
     return np.arctan2(sin, cos)
 
 class Axis:
-    def __init__(self, point, direction):
-        self.p = point
+    def __init__(self, position, position_rel, direction):
+        self.p = position
+        self.p_rel = position_rel
         self.d = direction / norm(direction)
     
     def __str__(self):

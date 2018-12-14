@@ -14,6 +14,7 @@ def convert(robot):
     sc = get_sign_corrections(axes)
 
     params = get_dimensions(axes, tool0_position)
+    #params = get_dimensions_new(axes)
     params['joint_offsets'] = jo
     params['sign_corrections'] = sc
     return params
@@ -26,9 +27,9 @@ def get_joint_axes_from_urdf(robot):
             if i > 0:
                 p_relative = np.array(joints[i].origin.xyz)
                 p_previous = axes[-1].p
-                axes.append(Axis( p_previous + p_relative, np.array(joints[i].axis) ))
+                axes.append(Axis( p_previous + p_relative, p_relative, np.array(joints[i].axis) ))
             else:
-                axes.append(Axis( np.array(joints[i].origin.xyz), np.array(joints[i].axis) ))     
+                axes.append(Axis( np.array(joints[i].origin.xyz), np.array(joints[i].origin.xyz), np.array(joints[i].axis) ))     
     return axes
 
 def get_tool0_position(robot, axes):
@@ -82,4 +83,23 @@ def get_dimensions(axes, tool0_position):
 
     # distance between g5 and tool0 along g6
     params['c4'] = np.abs(np.dot(axes[5].d, tool0_position - axes[4].p))
+    return params
+
+def get_dimensions_new(axes):
+    params = {}
+    P_0_1 = axes[0].p_rel
+    P_1_2 = axes[1].p_rel
+    P_2_3 = axes[2].p_rel
+    P_3_4 = axes[3].p_rel
+    P_4_5 = axes[4].p_rel
+    P_5_6 = axes[5].p_rel
+
+    params['c1'] = P_0_1[2] + P_1_2[2]
+    params['c2'] = norm(P_2_3)
+    params['c3'] = norm(P_4_5) + P_3_4[0]
+    params['c4'] = norm(P_5_6)
+
+    params['a1'] = np.sqrt(P_1_2[0]**2 + P_1_2[1]**2)
+    params['a2'] = -np.sqrt(P_3_4[0]**2 + P_3_4[2]**2) # or -P_3_4[2]
+    params['b']  = P_3_4[1]
     return params
