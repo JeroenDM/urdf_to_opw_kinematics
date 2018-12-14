@@ -1,0 +1,7 @@
+<?xml version="1.0" ?>
+<robot name="robot" xmlns:xacro="http://ros.org/wiki/xacro">
+
+    <xacro:include filename="$(find urdf_to_opw_kinematics)/urdf/create_robot_macro.xacro" />
+    <xacro:create_joints c1="0.1" c2="0.15" c3="0.2" c4="0.05" a1="0.2" a2="0.03" b="0.0" phi1="0.0" phi2="0.0" phi3="0.0" phi4="0.0" phi5="0.0"/>
+
+</robot>

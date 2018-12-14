@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+<robot name="robot1">
+
+<link name="base_link"/>
+<link name="link_1"/>
+<link name="link_2"/>
+<link name="link_3"/>
+<link name="link_4"/>
+<link name="link_5"/>
+<link name="link_6"/>
+<link name="tool0"/>
+
+<joint name="joint_a1" type="revolute"> 
+    <parent link="base_link"/>
+    <child link="link_1"/>
+    <origin xyz="0 0 0.1" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-3.14" upper="3.14" effort="0" velocity="1.0"/>
+</joint>
+
+<joint name="joint_a2" type="revolute"> 
+    <parent link="link_1"/>
+    <child link="link_2"/>
+    <origin xyz="0.2 0 0" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-3.14" upper="3.14" effort="0" velocity="1.0"/>
+</joint>
+
+<joint name="joint_a3" type="revolute"> 
+    <parent link="link_2"/>
+    <child link="link_3"/>
+    <origin xyz="0 0 0.2" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-3.14" upper="3.14" effort="0" velocity="1.0"/>
+</joint>
+
+<joint name="joint_a4" type="revolute"> 
+    <parent link="link_3"/>
+    <child link="link_4"/>
+    <origin xyz="-0.05 0.1 0" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-3.14" upper="3.14" effort="0" velocity="1.0"/>
+</joint>
+
+<joint name="joint_a5" type="revolute"> 
+    <parent link="link_4"/>
+    <child link="link_5"/>
+    <origin xyz="0 0 0.1" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-3.14" upper="3.14" effort="0" velocity="1.0"/>
+</joint>
+
+<joint name="joint_a6" type="revolute"> 
+    <parent link="link_5"/>
+    <child link="link_6"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-3.14" upper="3.14" effort="0" velocity="1.0"/>
+</joint>
+
+<joint name="link_6_tool0" type="fixed"> 
+    <parent link="link_6"/>
+    <child link="tool0"/>
+    <origin xyz="0 0 0.05" rpy="0 0 0"/>
+</joint>
+
+</robot>

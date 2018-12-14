@@ -1,0 +1,69 @@
+<?xml version="1.0" ?>
+<robot name="robot" xmlns:xacro="http://ros.org/wiki/xacro">
+<xacro:macro name="create_joints" params="c1 c2 c3 c4 a1 a2 b phi1 phi2 phi3 phi4 phi5">
+
+    <link name="base_link"/>
+    <link name="link_1"/>
+    <link name="link_2"/>
+    <link name="link_3"/>
+    <link name="link_4"/>
+    <link name="link_5"/>
+    <link name="link_6"/>
+    <link name="tool0"/>
+
+    <joint name="joint_a1" type="revolute"> 
+        <parent link="base_link"/>
+        <child link="link_1"/>
+        <origin xyz="0 0 ${c1}" rpy="0 0 0"/>
+        <axis xyz="0 0 1"/>
+        <limit lower="-3.14" upper="3.14" effort="0" velocity="1.0"/>
+    </joint>
+
+    <joint name="joint_a2" type="revolute"> 
+        <parent link="link_1"/>
+        <child link="link_2"/>
+        <origin xyz="${a1 * cos(phi1)} ${a1 * sin(phi1)} 0" rpy="0 0 0"/>
+        <axis xyz="0 1 0"/>
+        <limit lower="-3.14" upper="3.14" effort="0" velocity="1.0"/>
+    </joint>
+
+    <joint name="joint_a3" type="revolute"> 
+        <parent link="link_2"/>
+        <child link="link_3"/>
+        <origin xyz="${c2 * sin(phi2)} 0 ${c2 * cos(phi2)}" rpy="0 0 0"/>
+        <axis xyz="0 1 0"/>
+        <limit lower="-3.14" upper="3.14" effort="0" velocity="1.0"/>
+    </joint>
+
+    <joint name="joint_a4" type="revolute"> 
+        <parent link="link_3"/>
+        <child link="link_4"/>
+        <origin xyz="${a2 * sin(phi3)} ${b} ${a2 * cos(phi3)}" rpy="0 0 0"/>
+        <axis xyz="0 0 1"/>
+        <limit lower="-3.14" upper="3.14" effort="0" velocity="1.0"/>
+    </joint>
+
+    <joint name="joint_a5" type="revolute"> 
+        <parent link="link_4"/>
+        <child link="link_5"/>
+        <origin xyz="${c3 * sin(phi4)} 0 ${c3 * cos(phi4)}" rpy="0 0 0"/>
+        <axis xyz="0 1 0"/>
+        <limit lower="-3.14" upper="3.14" effort="0" velocity="1.0"/>
+    </joint>
+
+    <joint name="joint_a6" type="revolute"> 
+        <parent link="link_5"/>
+        <child link="link_6"/>
+        <origin xyz="${c4 * sin(phi5)} 0 ${c4 * cos(phi5)}" rpy="0 0 0"/>
+        <axis xyz="0 0 1"/>
+        <limit lower="-3.14" upper="3.14" effort="0" velocity="1.0"/>
+    </joint>
+
+    <joint name="link_6_tool0" type="fixed"> 
+        <parent link="link_6"/>
+        <child link="tool0"/>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+    </joint>
+
+</xacro:macro>
+</robot>
