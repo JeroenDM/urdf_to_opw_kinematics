@@ -11,31 +11,31 @@ def angle(v1, v2):
 
 class Axis:
     def __init__(self, position, position_rel, direction):
-        self.p = position
+        self.position = position
         self.p_rel = position_rel
-        self.d = direction / norm(direction)
+        self.direction = direction / norm(direction)
     
     def __str__(self):
         s = "[Axis]\tpoint: "
-        s += str(self.p) + "\tdir: "
-        s += str(self.d) + "\n"
+        s += str(self.position) + "\tdir: "
+        s += str(self.direction) + "\n"
         return s
     
     def is_perpendicular(self, other):
-        c = norm(np.dot(self.d, other.d))
+        c = norm(np.dot(self.direction, other.direction))
         return (c < TOL)
     
     def is_parallel(self, other):
-        c = norm(np.cross(self.d, other.d))
+        c = norm(np.cross(self.direction, other.direction))
         return (c < TOL)
     
     def shortest_distance_vector(self, other):
         if self.is_parallel(other):
-            v = other.p - self.p
-            return v - np.dot(v, self.d) * self.d
+            v = other.position - self.position
+            return v - np.dot(v, self.direction) * self.direction
         else:
-            v = other.p - self.p
-            d = np.cross(self.d, other.d)
+            v = other.position - self.position
+            d = np.cross(self.direction, other.direction)
             return np.dot(v, d) / norm(d) * d
     
     def shortest_distance(self, other):
