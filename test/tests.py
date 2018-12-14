@@ -23,7 +23,7 @@ class TestRobots(unittest.TestCase):
         }
 
         self.robot1 = {
-            "c1":  0.100,
+            "c1":  0.070,
             "c2":  0.200,
             "c3":  0.100,
             "c4":  0.050,
