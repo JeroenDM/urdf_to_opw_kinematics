@@ -29,14 +29,21 @@ class Axis:
         c = norm(np.cross(self.direction, other.direction))
         return (c < TOL)
     
-    def shortest_distance_vector(self, other):
-        if self.is_parallel(other):
-            v = other.position - self.position
-            return v - np.dot(v, self.direction) * self.direction
-        else:
-            v = other.position - self.position
-            d = np.cross(self.direction, other.direction)
-            return np.dot(v, d) / norm(d) * d
-    
-    def shortest_distance(self, other):
-        return norm(self.shortest_distance_vector(other))
+def _distance_vector(axes1, axes2):
+    if axes1.is_parallel(axes2):
+        v = axes2.position - axes1.position
+        return v - np.dot(v, axes1.direction) * axes1.direction
+    else:
+        v = axes2.position - axes1.position
+        d = np.cross(axes1.direction, axes2.direction)
+        return np.dot(v, d) / norm(d) * d
+
+def distance(axes1, axes2, return_vector=False, along=None):
+    v = _distance_vector(axes1, axes2)
+    if (along is not None):
+        return np.abs(np.dot(v, along.direction))
+    if (not return_vector):
+        return norm(v)
+    return v
+
+

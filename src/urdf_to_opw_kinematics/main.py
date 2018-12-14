@@ -2,7 +2,7 @@
 #!/usr/bin/env python
 import numpy as np
 from numpy.linalg import norm
-from urdf_to_opw_kinematics.util import angle, Axis
+from urdf_to_opw_kinematics.util import angle, Axis, distance
 
 def convert(robot):
     axes = get_joint_axes_from_urdf(robot)
@@ -40,7 +40,8 @@ def get_tool0_position(robot, axes):
 
 def get_joint_offsets(axes):
 
-    v23 = axes[1].shortest_distance_vector(axes[2])
+    #v23 = axes[1].shortest_distance_vector(axes[2])
+    v23 = distance(axes[1], axes[2], return_vector=True)
     unit_z = np.array([0, 0, 1.0])
     jo2 = -angle(unit_z, v23)
 
@@ -75,18 +76,17 @@ def get_dimensions(axes, tool0_position):
     else:
         raise ValueError("Wrong orientations of g2.")
 
-    params['c2'] = axes[1].shortest_distance(G3)
+    params['c2'] = distance(G2, G3)
 
-    v35 = G3.shortest_distance_vector(G5)
-    params['c3'] = np.abs(np.dot(v35, G4.direction))
+    params['c3'] = distance(G3, G5, along=G4)
 
-    v34 = G3.shortest_distance_vector(G4)
+    #v34 = G3.shortest_distance_vector(G4)
     #a2_sign = np.sign(np.dot(v34))
-    a2_sign = -1
-    params['a2'] = norm(v34) * a2_sign
+    #a2_sign = -1
+    #params['a2'] = norm(v34) * a2_sign
+    params['a2'] = -distance(G3, G4)
 
-    # distance between g3 and g4 perpendicular along g3
-    params['b'] = np.dot(v34, G3.direction)
+    params['b'] = distance(G3, G4, along=G3)
 
     # distance between g5 and tool0 along g6
     params['c4'] = np.abs(np.dot(G6.direction, p_ee - G5.position))
