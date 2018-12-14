@@ -39,16 +39,41 @@ def get_tool0_position(robot, axes):
     raise ValueError("Failed to find a joint with child link 'tool0'.")
 
 def get_joint_offsets(axes):
+    G1 = axes[0]
+    G2 = axes[1]
+    G3 = axes[2]
+    G4 = axes[3]
+    G5 = axes[4]
+    G6 = axes[5]
 
-    #v23 = axes[1].shortest_distance_vector(axes[2])
-    v23 = distance(axes[1], axes[2], return_vector=True)
+    unit_x = np.array([1.0, 0, 0])
+    unit_y = np.array([0, 1.0, 0])
     unit_z = np.array([0, 0, 1.0])
+
+    #print("---------------")
+    jo1 = -angle(unit_y, G2.direction)
+    #print("Joint 1: " + str(jo1))
+
+    v23 = distance(G2, G3, return_vector=True)
     jo2 = -angle(unit_z, v23)
+    #print("Joint 2: " + str(jo2))
 
-    g4_positive = np.array([abs(e) for e in axes[3].direction])
-    jo3 = -angle(v23, g4_positive)
+    #g4_positive = np.array([abs(e) for e in axes[3].direction])
+    jo3 = -angle(unit_z, G4.direction) - jo2
+    #print("Joint 3: " + str(jo3))
 
-    return [0.0, jo2, jo3, 0.0, 0.0, 0.0]
+    jo4 = -angle(unit_y, G5.direction) - jo1
+    #print("Joint 4: " + str(jo4))
+
+    jo5 = -angle(G4.direction, G6.direction)
+    #print("Joint 5: " + str(jo5))
+
+    # TODO get ee_y as input and correct for jo1 and j04
+    ee_y_direction = unit_y
+    jo6 = -angle(ee_y_direction, unit_y)
+    #print("Joint 6: " + str(jo6))
+
+    return [jo1, jo2, jo3, jo4, jo5, jo6]
 
 def get_sign_corrections(axes):
     """ axis positive rotation convention
