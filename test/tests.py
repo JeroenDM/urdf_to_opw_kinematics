@@ -28,7 +28,7 @@ class TestRobots(unittest.TestCase):
             "c3":  0.100,
             "c4":  0.050,
             "a1":  0.200,
-            "a2": -0.050,
+            "a2":  0.050,
             "b":   0.000,
             "joint_offsets": [0, 0, 0, 0, 0, 0],
             "sign_corrections": [1, 1, 1, 1, 1, 1]
