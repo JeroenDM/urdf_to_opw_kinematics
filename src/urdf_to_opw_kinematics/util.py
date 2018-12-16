@@ -9,6 +9,11 @@ def angle(v1, v2):
     sin = norm(np.cross(v1, v2))
     return np.arctan2(sin, cos)
 
+def rot_y(alfa):
+    return np.array(
+            [[np.cos(alfa), 0, np.sin(alfa)], [0, 1, 0], [-np.sin(alfa), 0, np.cos(alfa)]]
+            )
+
 class Axis:
     def __init__(self, position, position_rel, direction):
         self.position = position

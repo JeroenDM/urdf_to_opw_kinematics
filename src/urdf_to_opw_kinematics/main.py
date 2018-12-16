@@ -2,7 +2,7 @@
 #!/usr/bin/env python
 import numpy as np
 from numpy.linalg import norm
-from urdf_to_opw_kinematics.util import angle, Axis, distance
+from urdf_to_opw_kinematics.util import angle, Axis, distance, rot_y
 
 def convert(robot):
     axes = get_joint_axes_from_urdf(robot)
@@ -13,7 +13,7 @@ def convert(robot):
 
     sc = get_sign_corrections(axes)
 
-    params = get_dimensions(axes, tool0_position)
+    params = get_dimensions(axes, tool0_position, jo)
     #params = get_dimensions_new(axes)
     params['joint_offsets'] = jo
     params['sign_corrections'] = sc
@@ -51,29 +51,29 @@ def get_joint_offsets(axes):
     unit_z = np.array([0, 0, 1.0])
 
     #print("---------------")
-    jo1 = -angle(unit_y, G2.direction)
+    jo1 = angle(unit_y, G2.direction)
     #print("Joint 1: " + str(jo1))
 
     v23 = distance(G2, G3, return_vector=True)
-    jo2 = -angle(unit_z, v23)
+    jo2 = angle(unit_z, v23)
     #print("Joint 2: " + str(jo2))
 
     #g4_positive = np.array([abs(e) for e in axes[3].direction])
-    jo3 = -angle(unit_z, G4.direction) - jo2
+    jo3 = angle(unit_z, G4.direction) - jo2
     #print("Joint 3: " + str(jo3))
 
-    jo4 = -angle(unit_y, G5.direction) - jo1
+    jo4 = angle(unit_y, G5.direction) - jo1
     #print("Joint 4: " + str(jo4))
 
-    jo5 = -angle(G4.direction, G6.direction)
+    jo5 = angle(G4.direction, G6.direction)
     #print("Joint 5: " + str(jo5))
 
     # TODO get ee_y as input and correct for jo1 and j04
     ee_y_direction = unit_y
-    jo6 = -angle(ee_y_direction, unit_y)
+    jo6 = angle(ee_y_direction, unit_y)
     #print("Joint 6: " + str(jo6))
 
-    return [jo1, jo2, jo3, jo4, jo5, jo6]
+    return [-jo1, -jo2, -jo3, -jo4, -jo5, -jo6]
 
 def get_sign_corrections(axes):
     """ axis positive rotation convention
@@ -82,7 +82,7 @@ def get_sign_corrections(axes):
     sc = map(np.sum, [a.direction for a in axes])
     return [int(val) for val in sc]
 
-def get_dimensions(axes, tool0_position):
+def get_dimensions(axes, tool0_position, jo):
     params = {}
     G1 = axes[0]
     G2 = axes[1]
@@ -91,9 +91,11 @@ def get_dimensions(axes, tool0_position):
     G5 = axes[4]
     G6 = axes[5]
     p_ee = tool0_position
+    unit_x = np.array([1.0, 0, 0])
 
+    # TODO use joint offset on first joint to make this more general
     # check if a1 is along positive x and g2 is above x-y plane
-    # this mean that the position of g2 should be (a1, 0, c1) with a1 > 0
+    # this mean that the position of g2 position should be (a1, 0, c1) with a1 > 0
     P2 = G2.position
     if (P2[0] >= 0 and P2[1] == 0 and P2[2] >= 0):
         params['a1'] = P2[0]
@@ -101,20 +103,22 @@ def get_dimensions(axes, tool0_position):
     else:
         raise ValueError("Wrong orientations of g2.")
 
+    # ci's are always positive
     params['c2'] = distance(G2, G3)
-
     params['c3'] = distance(G3, G5, along=G4)
-
-    #v34 = G3.shortest_distance_vector(G4)
-    #a2_sign = np.sign(np.dot(v34))
-    #a2_sign = -1
-    #params['a2'] = norm(v34) * a2_sign
-    params['a2'] = -distance(G3, G4)
-
-    params['b'] = distance(G3, G4, along=G3)
-
-    # distance between g5 and tool0 along g6
+     # distance between g5 and tool0 along g6
     params['c4'] = np.abs(np.dot(G6.direction, p_ee - G5.position))
+
+    # calculate sign a2
+    v34 = distance(G3, G4, return_vector=True)
+    v34 = np.dot(rot_y(jo[1] + jo[2]), v34)
+    a2_sign = np.sign(np.dot(unit_x, v34))
+
+    params['a2'] = a2_sign * distance(G3, G4)
+
+    # TODO sign calculation
+    params['b'] = distance(G3, G4, along=G3)
+    
     return params
 
 def get_dimensions_new(axes):
