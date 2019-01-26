@@ -11,7 +11,7 @@ PI = 3.14159265359
 # in the urdf file available on the parameter server
 test_data = {}
 test_data["robot1"] = {
-    "c1":  0.100,
+    "c1":  0.070,
     "c2":  0.200,
     "c3":  0.100,
     "c4":  0.050,
@@ -34,6 +34,18 @@ test_data["irb2400"] = {
     "sign_corrections": [1, 1, 1, 1, 1, 1]
 }
 
+test_data["kuka_kr6r700sixx"] = {
+    "c1":  0.400,
+    "c2":  0.315,
+    "c3":  0.365,
+    "c4":  0.080,
+    "a1":  0.025,
+    "a2": -0.035,
+    "b":   0.000,
+    "joint_offsets": [0, -PI / 2, 0, 0, 0, 0],
+    "sign_corrections": [-1, 1, 1, -1, 1, -1]
+}
+
 class TestRobot1(unittest.TestCase):
 
     def setUp(self):
@@ -43,7 +55,7 @@ class TestRobot1(unittest.TestCase):
         robot = URDF.from_parameter_server()
         print("Testing robot with name: " + robot.name)
         actual = convert(robot)
-        if not test_data.has_key(robot.name):
+        if not (robot.name in test_data):
             raise KeyError("Robot " + robot.name + " not found in testdata")
         expected = test_data[robot.name]
         self.compare(actual, expected)

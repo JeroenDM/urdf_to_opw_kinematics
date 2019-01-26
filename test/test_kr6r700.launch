@@ -1,0 +1,5 @@
+
+<launch>
+  <param name="robot_description" command="cat $(find urdf_to_opw_kinematics)/urdf/kr6r700.urdf"/>
+  <test test-name="test_robots" pkg="urdf_to_opw_kinematics" type="run_test_on_robot_description.py"/>
+</launch>

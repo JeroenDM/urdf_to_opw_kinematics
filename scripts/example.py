@@ -4,7 +4,7 @@ from urdf_parser_py.urdf import URDF
 
 from urdf_to_opw_kinematics.main import convert
 
-PI = 3.14159265359;
+PI = 3.14159265359
 
 params_kr6 = {
     "c1":  0.400,
