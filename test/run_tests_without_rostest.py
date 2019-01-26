@@ -1,10 +1,17 @@
 #!/usr/bin/env python
+##########################################################################################
+# With this file you can run the tests on the three robots without using
+# the rostest framework.
+# This was my original test and I left it in because it is still up to date
+# It can be useful if you like clean test output instead of the 'catkin run_tests' output
+##########################################################################################
+
 import unittest
 from urdf_parser_py.urdf import URDF
 from urdf_to_opw_kinematics.main import convert
 
 PI = 3.14159265359;
-# change this so that I don't have to use absolute paths
+# TODO change this so that I don't have to use absolute paths
 PATH = '/home/jeroen/Dropbox/ros/opw_plugin/src/urdf_to_opw_kinematics/urdf/'
 
 class TestRobots(unittest.TestCase):
