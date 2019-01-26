@@ -7,19 +7,29 @@ from urdf_to_opw_kinematics.util import angle, Axis, distance, rot_y
 def convert(robot):
     axes = get_joint_axes_from_urdf(robot)
     tool0_position = get_tool0_position(robot, axes)
-
-
+    
     jo = get_joint_offsets(axes)
-
     sc = get_sign_corrections(axes)
 
     params = get_dimensions(axes, tool0_position, jo)
-    #params = get_dimensions_new(axes)
     params['joint_offsets'] = jo
     params['sign_corrections'] = sc
     return params
 
 def get_joint_axes_from_urdf(robot):
+    """ Extract joint origin and axis direction from urdf
+
+    Save absolute position in base_link, and relative position
+    with respect to the previous link.
+
+    Parameters
+    ----------
+    robot object from the urdf_parser_py library
+
+    Returns
+    -------
+    list of Axis objects
+    """
     joints = robot.joints
     axes = []
     for i in range(len(joints)):
@@ -33,12 +43,21 @@ def get_joint_axes_from_urdf(robot):
     return axes
 
 def get_tool0_position(robot, axes):
+    """ Search for the tool0 link and get absolut position origin
+
+    Returns
+    -------
+    absolut position as a numpy array of length 3
+    """
     for joint in robot.joints:
         if joint.child == "tool0":
             return axes[-1].position + np.array(joint.origin.xyz)
     raise ValueError("Failed to find a joint with child link 'tool0'.")
 
 def get_joint_offsets(axes):
+    """ Calculate joint angle difference between reference pose of opw_kinematics
+    and the zero pose of the current robot
+    """
     G1 = axes[0]
     G2 = axes[1]
     G3 = axes[2]
@@ -50,39 +69,35 @@ def get_joint_offsets(axes):
     unit_y = np.array([0, 1.0, 0])
     unit_z = np.array([0, 0, 1.0])
 
-    #print("---------------")
     jo1 = angle(unit_y, G2.direction)
-    #print("Joint 1: " + str(jo1))
-
     v23 = distance(G2, G3, return_vector=True)
     jo2 = angle(unit_z, v23)
-    #print("Joint 2: " + str(jo2))
-
     #g4_positive = np.array([abs(e) for e in axes[3].direction])
     jo3 = angle(unit_z, G4.direction) - jo2
-    #print("Joint 3: " + str(jo3))
-
     jo4 = angle(unit_y, G5.direction) - jo1
-    #print("Joint 4: " + str(jo4))
-
     jo5 = angle(G4.direction, G6.direction)
-    #print("Joint 5: " + str(jo5))
 
     # TODO get ee_y as input and correct for jo1 and j04
     ee_y_direction = unit_y
     jo6 = angle(ee_y_direction, unit_y)
-    #print("Joint 6: " + str(jo6))
 
     return [-jo1, -jo2, -jo3, -jo4, -jo5, -jo6]
 
 def get_sign_corrections(axes):
-    """ axis positive rotation convention
+    """ Does the axis rotate according to the right hand rule?
     Assume all z-axis pointed up and axis along one of the main axes
     """
     sc = map(np.sum, [a.direction for a in axes])
     return [int(val) for val in sc]
 
 def get_dimensions(axes, tool0_position, jo):
+    """ Calculate distance parameters c1, c2, c3, c4
+    and signed distances a1, a2, b
+    
+    Note
+    ----
+    The sign of b is not yet implemented and defaults as positive
+    """
     params = {}
     G1 = axes[0]
     G2 = axes[1]
@@ -117,11 +132,16 @@ def get_dimensions(axes, tool0_position, jo):
     params['a2'] = a2_sign * distance(G3, G4)
 
     # TODO sign calculation
+    # but b is zero in most robots
     params['b'] = distance(G3, G4, along=G3)
     
     return params
 
 def get_dimensions_new(axes):
+    """ (DOES NOT WORK)
+    Alternative method that could work if we make a lot more assumtions about
+    the given urdf model.
+    """
     params = {}
     P_0_1 = axes[0].p_rel
     P_1_2 = axes[1].p_rel
