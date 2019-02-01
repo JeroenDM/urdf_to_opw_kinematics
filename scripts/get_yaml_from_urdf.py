@@ -7,7 +7,7 @@ import yaml
 
 # ros specific libraries
 from urdf_parser_py.urdf import URDF
-from urdf_to_opw_kinematics.main import convert
+from urdf_to_opw_kinematics.main import convert, check_compatibility
 
 #PATTERN = "*_macro.xacro"
 PATTERN = "*.urdf"
@@ -20,8 +20,15 @@ class RobotParser:
   def __init__(self, command_line_arguments):
     file_paths = self.process_input(command_line_arguments)
     for fp in file_paths:
-      p = self.get_params_from_file(fp)
-      self.write_params_to_yaml(p, fp)
+
+      robot = URDF.from_xml_file(fp)
+
+      if check_compatibility(robot):
+        p = convert(robot)
+        self.write_params_to_yaml(p, fp)
+      else:
+        print(robot.name + " is not compatibel with opw_kinematics.")
+        continue
   
   def process_input(self, argv):
     """ Check if a path is provided and find all robot description files
@@ -57,18 +64,12 @@ class RobotParser:
     
     return files
   
-  def get_params_from_file(self, file_path):
-    robot = URDF.from_xml_file(file_path)
-    params = convert(robot)
-    return params
-  
   def remove_minus_sign_if_zero(self, val):
     if val == 0.0:
       return abs(val)
     else:
       return val
 
-  
   def write_params_to_yaml(self, params, file_path):
     # get robot name from path and add extension
     name = os.path.basename(file_path)
@@ -87,10 +88,12 @@ class RobotParser:
     # extend to contain all info for the moveit_config package
     data = { "manipulator" : {}}
     data["manipulator"]["kinematics_solver"] = "moveit_opw_kinematics_plugin/MoveItOPWKinematicsPlugin"
+    data["manipulator"]["kinematics_solver_joint_offsets"] = params.pop("joint_offsets")
+    data["manipulator"]["kinematics_solver_joint_sign_corrections"] = params.pop("sign_corrections")
     data["manipulator"]["kinematics_solver_geometric_parameters"] = params
 
     with open(name, 'w') as outfile:
-      yaml.dump(data, outfile)
+      yaml.dump(data, outfile, default_flow_style=False)
 
 
 if __name__ == "__main__":

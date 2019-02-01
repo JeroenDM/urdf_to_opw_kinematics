@@ -4,6 +4,19 @@ import numpy as np
 from numpy.linalg import norm
 from urdf_to_opw_kinematics.util import angle, Axis, distance, rot_y
 
+DEBUG = True
+
+def check_compatibility(robot):
+    """ TODO add compatibility tests
+    now I just check if there are 6 revolute joints
+    """
+    axes = get_joint_axes_from_urdf(robot)
+    num_joints = len(axes)
+    if num_joints != 6:
+        print(robot.name + " has " + str(num_joints) + " joints, not 6.")
+        return False
+    return True
+
 def convert(robot):
     axes = get_joint_axes_from_urdf(robot)
     tool0_position = get_tool0_position(robot, axes)
@@ -39,7 +52,7 @@ def get_joint_axes_from_urdf(robot):
                 p_previous = axes[-1].position
                 axes.append(Axis( p_previous + p_relative, p_relative, np.array(joints[i].axis) ))
             else:
-                axes.append(Axis( np.array(joints[i].origin.xyz), np.array(joints[i].origin.xyz), np.array(joints[i].axis) ))     
+                axes.append(Axis( np.array(joints[i].origin.xyz), np.array(joints[i].origin.xyz), np.array(joints[i].axis) ))  
     return axes
 
 def get_tool0_position(robot, axes):
