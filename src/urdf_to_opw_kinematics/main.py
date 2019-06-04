@@ -6,6 +6,7 @@ from urdf_to_opw_kinematics.util import angle, Axis, distance, rot_y
 
 DEBUG = True
 
+
 def check_compatibility(robot):
     """ TODO add compatibility tests
     now I just check if there are 6 revolute joints
@@ -17,10 +18,11 @@ def check_compatibility(robot):
         return False
     return True
 
+
 def convert(robot):
     axes = get_joint_axes_from_urdf(robot)
     tool0_position = get_tool0_position(robot, axes)
-    
+
     jo = get_joint_offsets(axes)
     sc = get_sign_corrections(axes)
 
@@ -28,6 +30,7 @@ def convert(robot):
     params['joint_offsets'] = jo
     params['sign_corrections'] = sc
     return params
+
 
 def get_joint_axes_from_urdf(robot):
     """ Extract joint origin and axis direction from urdf
@@ -50,10 +53,13 @@ def get_joint_axes_from_urdf(robot):
             if i > 0:
                 p_relative = np.array(joints[i].origin.xyz)
                 p_previous = axes[-1].position
-                axes.append(Axis( p_previous + p_relative, p_relative, np.array(joints[i].axis) ))
+                axes.append(Axis(p_previous + p_relative,
+                                 p_relative, np.array(joints[i].axis)))
             else:
-                axes.append(Axis( np.array(joints[i].origin.xyz), np.array(joints[i].origin.xyz), np.array(joints[i].axis) ))  
+                axes.append(Axis(np.array(joints[i].origin.xyz), np.array(
+                    joints[i].origin.xyz), np.array(joints[i].axis)))
     return axes
+
 
 def get_tool0_position(robot, axes):
     """ Search for the tool0 link and get absolut position origin
@@ -66,6 +72,7 @@ def get_tool0_position(robot, axes):
         if joint.child == "tool0":
             return axes[-1].position + np.array(joint.origin.xyz)
     raise ValueError("Failed to find a joint with child link 'tool0'.")
+
 
 def get_joint_offsets(axes):
     """ Calculate joint angle difference between reference pose of opw_kinematics
@@ -96,6 +103,7 @@ def get_joint_offsets(axes):
 
     return [-jo1, -jo2, -jo3, -jo4, -jo5, -jo6]
 
+
 def get_sign_corrections(axes):
     """ Does the axis rotate according to the right hand rule?
     Assume all z-axis pointed up and axis along one of the main axes
@@ -103,10 +111,11 @@ def get_sign_corrections(axes):
     sc = map(np.sum, [a.direction for a in axes])
     return [int(val) for val in sc]
 
+
 def get_dimensions(axes, tool0_position, jo):
     """ Calculate distance parameters c1, c2, c3, c4
     and signed distances a1, a2, b
-    
+
     Note
     ----
     The sign of b is not yet implemented and defaults as positive
@@ -134,7 +143,7 @@ def get_dimensions(axes, tool0_position, jo):
     # ci's are always positive
     params['c2'] = distance(G2, G3)
     params['c3'] = distance(G3, G5, along=G4)
-     # distance between g5 and tool0 along g6
+    # distance between g5 and tool0 along g6
     params['c4'] = np.abs(np.dot(G6.direction, p_ee - G5.position))
 
     # calculate sign a2
@@ -147,8 +156,9 @@ def get_dimensions(axes, tool0_position, jo):
     # TODO sign calculation
     # but b is zero in most robots
     params['b'] = distance(G3, G4, along=G3)
-    
+
     return params
+
 
 def get_dimensions_new(axes):
     """ (DOES NOT WORK)
@@ -169,6 +179,6 @@ def get_dimensions_new(axes):
     params['c4'] = norm(P_5_6)
 
     params['a1'] = np.sqrt(P_1_2[0]**2 + P_1_2[1]**2)
-    params['a2'] = -np.sqrt(P_3_4[0]**2 + P_3_4[2]**2) # or -P_3_4[2]
-    params['b']  = P_3_4[1]
+    params['a2'] = -np.sqrt(P_3_4[0]**2 + P_3_4[2]**2)  # or -P_3_4[2]
+    params['b'] = P_3_4[1]
     return params

@@ -3,6 +3,7 @@ import rospy
 from urdf_parser_py.urdf import URDF
 
 from urdf_to_opw_kinematics.main import convert
+from urdf_to_opw_kinematics.util import angle
 
 PI = 3.14159265359
 
@@ -18,6 +19,7 @@ params_kr6 = {
     "sign_corrections": [-1, 1, 1, -1, 1, -1]
 }
 
+
 def run():
     robot = URDF.from_parameter_server()
     print(robot.name == "abb_irb2400")
@@ -27,6 +29,6 @@ def run():
     for key in params:
         print(key + ":\t" + str(params[key]) + "\t" + str(params_kr6[key]))
 
+
 if __name__ == "__main__":
     run()
-   
