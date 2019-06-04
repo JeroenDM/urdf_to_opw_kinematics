@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <launch>
-  <param name="robot_description" command="cat $(find urdf_to_opw_kinematics)/urdf/kr6r700sixx.urdf"/>
+  <param name="robot_description" command="cat $(find urdf_to_opw_kinematics)/urdf/kr6r700.urdf"/>
   <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
     <param name="use_gui" value="true" />
   </node>
