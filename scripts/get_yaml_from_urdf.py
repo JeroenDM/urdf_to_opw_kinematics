@@ -6,7 +6,7 @@ import sys
 import yaml
 
 # ros specific libraries
-from urdf_parser_py.urdf import URDF
+from urdf_parser_py.urdf import URDF  # nolint
 from urdf_to_opw_kinematics.main import convert, check_compatibility
 
 #PATTERN = "*_macro.xacro"
@@ -38,11 +38,11 @@ class RobotParser:
     The argument provided by the user will be the second element of argv.
     """
     if len(argv) == 1:
-      print("No path provided, looking for *macro.xacro files in current working directory.")
+      print("No path provided, looking for *.urdf files in current working directory.")
       start_dir = os.getcwd()
       print("cwd: " + start_dir)
     if len(argv) == 2:
-      print("receiverd a path, I hope it is an absolute one...")
+      print("Thanks, I received a path, I hope it is an absolute one...")
       start_dir = argv[1]
       print(start_dir)
     if len(argv) > 2:
@@ -90,10 +90,12 @@ class RobotParser:
     data["manipulator"]["kinematics_solver"] = "moveit_opw_kinematics_plugin/MoveItOPWKinematicsPlugin"
     data["manipulator"]["kinematics_solver_joint_offsets"] = params.pop("joint_offsets")
     data["manipulator"]["kinematics_solver_joint_sign_corrections"] = params.pop("sign_corrections")
-    data["manipulator"]["kinematics_solver_geometric_parameters"] = params
+    data["manipulator"]["kinematics_solver_geometric_parameters"] = {}
+    data["manipulator"]["kinematics_solver_geometric_parameters"]['a1'] = params['a1']
 
+    print(yaml.dump(data))
     with open(name, 'w') as outfile:
-      yaml.dump(data, outfile, default_flow_style=False)
+      yaml.dump(data, outfile)#, default_flow_style=False)
 
 
 if __name__ == "__main__":
